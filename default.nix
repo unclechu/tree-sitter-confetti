@@ -1,5 +1,6 @@
 { pkgs ? import (if useNixpkgsPin then import nix/nixpkgs-pin.nix else <nixpkgs>) {}
 , lib ? pkgs.lib
+, mkShell ? pkgs.mkShell
 
 , gcc ? pkgs.gcc
 , pkg-config ? pkgs.pkg-config
@@ -7,6 +8,9 @@
 
 , vimPlugins ? pkgs.vimPlugins
 , tree-sitter ? pkgs.tree-sitter
+
+# For `neovim-example` attribute
+, neovim ? pkgs.neovim
 
 , inNixShell ? false
 , useNixpkgsPin ? false
@@ -37,14 +41,14 @@ let
     src = tree-sitter-confetti-source;
   };
 
-  shell = pkgs.mkShell {
+  shell = mkShell {
     pname = "tree-sitter-confetti-shell";
 
     packages = [
-      pkgs.gcc
-      pkgs.pkg-config
-      pkgs.gnumake
-      pkgs.tree-sitter
+      gcc
+      pkg-config
+      gnumake
+      tree-sitter
     ];
   };
 
@@ -54,7 +58,7 @@ let
   #   nix-build --arg useNixpkgsPin true -A neovim-example -o result-neovim-example
   #   result-neovim-example/bin/nvim test/samples/core.confetti
   #
-  neovim-example = pkgs.neovim.override {
+  neovim-example = neovim.override {
     configure = {
       packages.treesitter.start = [
         (vimPlugins.nvim-treesitter.withPlugins (grammars: [
