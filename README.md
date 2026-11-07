@@ -386,13 +386,26 @@ augroup END
 Or using Lua API:
 
 ```lua
+-- Recognize `*.confetti` files.
 vim.filetype.add({ extension = { confetti = "confetti" } })
 
+-- Create the autocommand group, clearing previous registrations.
+local group = vim.api.nvim_create_augroup(
+  "confetti_filetype_configuration",
+  { clear = true }
+)
+
+-- Configure Confetti buffers.
 vim.api.nvim_create_autocmd("FileType", {
+  group = group,
   pattern = "confetti",
   callback = function()
+    -- Enable Confetti hash-sign comments.
     vim.opt_local.commentstring = "# %s"
     vim.opt_local.comments = "b:#"
+
+    -- Make dashes part of words.
+    -- For example, foo-bar-baz is recognized as one word.
     vim.opt_local.iskeyword:append("-")
   end,
 })
