@@ -1,0 +1,33 @@
+name: Build and test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Test build of the grammar
+        run: |
+          nix-build --arg useNixpkgsPin true -A tree-sitter-confetti-grammar
+
+          ls -l result/parser
+          file result/parser
+          ldd result/parser
+
+          ls -l result/queries/highlights.scm
+
+          ls -l result/tree-sitter.json
+
+      - name: Run Tree-sitter tests
+        run: nix-shell --arg useNixpkgsPin true --run 'tree-sitter test'
