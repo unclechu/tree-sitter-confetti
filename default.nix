@@ -47,11 +47,52 @@ let
       pkgs.tree-sitter
     ];
   };
+
+  # An example of Neovim configuration that would enable Confetti Tree-sitter
+  # grammar for `*.confetti` files.
+  #
+  #   nix-build --arg useNixpkgsPin true -A neovim-example -o result-neovim-example
+  #   result-neovim-example/bin/nvim test/samples/core.confetti
+  #
+  neovim-example = pkgs.neovim.override {
+    configure = {
+      packages.treesitter.start = [
+        (vimPlugins.nvim-treesitter.withPlugins (grammars: [
+          tree-sitter-confetti-grammar
+        ]))
+      ];
+
+      customRC = ''
+        lua << EOF
+
+        -- Recognize *.confetti files.
+        vim.filetype.add({ extension = { confetti = "confetti" } })
+
+        vim.api.nvim_create_autocmd("FileType", {
+          pattern = "confetti",
+          callback = function(ev)
+            -- Confetti comments.
+            vim.opt_local.commentstring = "# %s"
+            vim.opt_local.comments = "b:#"
+
+            -- Treat dashes as part of words.
+            vim.opt_local.iskeyword:append("-")
+
+            -- Enable Tree-sitter highlighting.
+            vim.treesitter.start(ev.buf)
+          end,
+        })
+
+        EOF
+      '';
+    };
+  };
 in
 
 (if inNixShell then shell else {}) // {
   inherit
     shell
     tree-sitter-confetti-grammar
+    neovim-example
     ;
 }
