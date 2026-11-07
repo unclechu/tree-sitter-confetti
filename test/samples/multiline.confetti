@@ -1,0 +1,8 @@
+message """Hello,
+world! Curly braces { } are literal here.
+"""
+message "Hello, \
+world!"
+probe-device eth0 \
+eth1
+path a\#b

@@ -1,0 +1,198 @@
+====================
+Simple directives and semicolons
+====================
+
+username john
+language en-US; notifications on
+step load-video
+
+---
+
+(source_file
+  (directive
+    (simple_directive
+      (bare_argument)
+      (bare_argument)))
+  (directive
+    (simple_directive
+      (bare_argument)
+      (bare_argument)))
+  (directive
+    (simple_directive
+      (bare_argument)
+      (bare_argument)))
+  (directive
+    (simple_directive
+      (bare_argument)
+      (bare_argument))))
+
+====================
+Nested blocks and adjacent directives
+====================
+
+project Linux {
+  target kernel {
+    sources {init.c fork.c scheduler.c}
+    enabled yes; retries 3s
+  }
+}
+do { echo ready } > output.txt
+
+---
+
+(source_file
+  (directive
+    (block_directive
+      (bare_argument)
+      (bare_argument)
+      (block
+        (directive
+          (block_directive
+            (bare_argument)
+            (bare_argument)
+            (block
+              (directive
+                (block_directive
+                  (bare_argument)
+                  (block
+                    (directive
+                      (simple_directive
+                        (bare_argument)
+                        (bare_argument)
+                        (bare_argument))))))
+              (directive
+                (simple_directive
+                  (bare_argument)
+                  (bare_argument)))
+              (directive
+                (simple_directive
+                  (bare_argument)
+                  (bare_argument)))))))))
+  (directive
+    (block_directive
+      (bare_argument)
+      (block
+        (directive
+          (simple_directive
+            (bare_argument)
+            (bare_argument))))))
+  (directive
+    (simple_directive
+      (bare_argument)
+      (bare_argument))))
+
+====================
+Quoted and multiline arguments
+====================
+
+message "Hello \"world\""
+message """A { brace } and an unescaped " quote
+continue here"""
+name ""
+empty """"""
+
+---
+
+(source_file
+  (directive
+    (simple_directive
+      (bare_argument)
+      (quoted_string)))
+  (directive
+    (simple_directive
+      (bare_argument)
+      (triple_quoted_string)))
+  (directive
+    (simple_directive
+      (bare_argument)
+      (quoted_string)))
+  (directive
+    (simple_directive
+      (bare_argument)
+      (triple_quoted_string))))
+
+====================
+Line continuation and escaped punctuators
+====================
+
+probe-device eth0 \
+  eth1
+name "Hello, \
+world!"
+path foo\#bar
+
+---
+
+(source_file
+  (directive
+    (simple_directive
+      (bare_argument)
+      (bare_argument)
+      (bare_argument)))
+  (directive
+    (simple_directive
+      (bare_argument)
+      (quoted_string)))
+  (directive
+    (simple_directive
+      (bare_argument)
+      (bare_argument))))
+
+====================
+Empty blocks and comments
+====================
+
+# Entire line comment
+do {} # Inline comment
+app {
+  # Just a comment
+}
+
+---
+
+(source_file
+  (comment)
+  (directive
+    (block_directive
+      (bare_argument)
+      (block)))
+  (comment)
+  (directive
+    (block_directive
+      (bare_argument)
+      (block
+        (comment)))))
+
+====================
+Block after newline and inline string directives
+====================
+
+application
+{
+  paragraph {
+    "Once upon a time, " bold{"curious"} " things happened."
+  }
+}
+
+---
+
+(source_file
+  (directive
+    (block_directive
+      (bare_argument)
+      (block
+        (directive
+          (block_directive
+            (bare_argument)
+            (block
+              (directive
+                (block_directive
+                  (quoted_string)
+                  (bare_argument)
+                  (block
+                    (directive
+                      (simple_directive
+                        (quoted_string))))))
+              (directive
+                (simple_directive
+                  (quoted_string))))))))))

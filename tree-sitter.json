@@ -1,0 +1,27 @@
+{
+  "grammars": [
+    {
+      "name": "confetti",
+      "path": ".",
+      "scope": "source.confetti",
+      "file-types": ["confetti"],
+      "highlights": "queries/highlights.scm"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "Unlicense",
+    "description": "A generic Tree-sitter grammar for Confetti 1.0",
+    "authors": [{"name": "Tree-sitter Confetti contributors"}]
+  },
+  "bindings": {
+    "c": true,
+    "go": false,
+    "java": false,
+    "node": false,
+    "python": false,
+    "rust": false,
+    "swift": false,
+    "zig": false
+  }
+}

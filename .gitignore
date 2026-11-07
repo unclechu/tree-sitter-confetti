@@ -1,0 +1,12 @@
+# Build artifacts
+/build/
+/.cache/
+*.o
+*.so
+*.dylib
+*.dll
+
+# Archives
+*.zip
+*.tar
+*.gz

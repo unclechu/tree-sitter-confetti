@@ -1,0 +1,3 @@
+name "hello"
+message """hello world"""
+assert {str-size "hello" == 5}

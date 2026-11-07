@@ -1,0 +1,10 @@
+# Confetti configuration with comments, nested blocks, and semicolons
+project "Demo" {
+  version 1.2.3
+  sources {init.c fork.c scheduler.c}
+  feature enabled; retries 3s
+}
+do {
+  ./webserver -p 8080
+  ./database --data-dir /var/lib/db/
+} > output.txt
