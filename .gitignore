@@ -6,6 +6,10 @@
 *.dylib
 *.dll
 
+# Nix build artifacts
+result
+result*
+
 # Archives
 *.zip
 *.tar
