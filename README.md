@@ -364,8 +364,96 @@ https://neovim.io/doc/user/treesitter/
 Here is a simple example for making a Neovim configuration with this grammar
 included using [Nix](https://nixos.org/).
 
+Create `neovim-with-tree-sitter-confetti.nix`:
+
 ```nix
-# TODO: Provide an example
+{ pkgs ? import <nixpkgs> {} }:
+
+let
+  tree-sitter-confetti-source = pkgs.fetchFromGitHub {
+    owner = "unclechu";
+    repo = "tree-sitter-confetti";
+    # Pick the top `master` branch commit hash of
+    # https://github.com/unclechu/tree-sitter-confetti
+    rev = "ffffffffffffffffffffffffffffffffffffffff";
+    # Try to build it first and put the actual hash here
+    # taken from the build error message.
+    #
+    # For example:
+    #  error: hash mismatch in fixed-output derivation '/nix/store/8im02sqwjrsqi3zhfas4c5q9vpw9yf0w-source.drv':
+    #    specified: sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+    #       got:    sha256-qSBFy8V9Pnk86MQEIEvKpi/o/7arYDpVnWN6frFEMAA=
+    #
+    # Then you replace `pkgs.lib.fakeHash` here with
+    # `"sha256-qSBFy8V9Pnk86MQEIEvKpi/o/7arYDpVnWN6frFEMAA="`
+    # and run the `nix-build neovim-with-tree-sitter-confetti.nix` again.
+    hash = pkgs.lib.fakeHash;
+  };
+
+  tree-sitter-confetti = pkgs.callPackage tree-sitter-confetti-source {};
+in
+
+pkgs.neovim.override {
+  configure = {
+    packages.treesitter.start = [
+      (pkgs.vimPlugins.nvim-treesitter.withPlugins (grammars: [
+        tree-sitter-confetti.tree-sitter-confetti-grammar
+      ]))
+    ];
+
+    customRC = ''
+      lua << EOF
+
+      -- Recognize `*.confetti` files.
+      vim.filetype.add({ extension = { confetti = "confetti" } })
+
+      -- Create the autocommand group, clearing previous registrations.
+      local group = vim.api.nvim_create_augroup(
+        "confetti_filetype_configuration",
+        { clear = true }
+      )
+
+      -- Configure Confetti buffers.
+      vim.api.nvim_create_autocmd("FileType", {
+        group = group,
+        pattern = "confetti",
+        callback = function(ev)
+          -- Enable Confetti hash-sign comments.
+          vim.opt_local.commentstring = "# %s"
+          vim.opt_local.comments = "b:#"
+
+          -- Make dashes part of words.
+          vim.opt_local.iskeyword:append("-")
+
+          -- Enable Tree-sitter highlighting for this buffer.
+          vim.treesitter.start(ev.buf)
+        end,
+      })
+
+      EOF
+    '';
+  };
+}
+```
+
+Then run:
+
+```sh
+nix-build neovim-with-tree-sitter-confetti.nix
+echo 'foo { bar baz 123s + 456 }' > example.confetti
+result/bin/nvim example.confetti
+```
+
+Note that default Neovim colorscheme might not give you all the useful
+highlights. For example numerics and block braces might look neutral.
+Try `:colorscheme zaibatsu` for example, it’ll give you more highlights.
+
+This example included to [`default.nix`](default.nix).
+So you can just run while being inside of this repository clone directory:
+
+```sh
+nix-build --arg useNixpkgsPin true -A neovim-example -o result-neovim-example
+result-neovim-example/bin/nvim test/samples/core.confetti
 ```
 
 Adding Tree-sitter grammar by itself won’t set up automatic file type detection.
