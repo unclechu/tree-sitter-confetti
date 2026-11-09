@@ -19,7 +19,8 @@
   (#match? @number "^[-+]*[.][0-9][0-9_]*[eE][-+][0-9][0-9_]*$"))
 
 ((bare_argument) @operator
-  (#any-of? @operator "+" "-" "*" "/" "==" "!=" "<=" ">=" "<" ">" "&&" "||"))
+  (#any-of? @operator
+    "=" "+" "-" "*" "/" "==" "!=" "<=" ">=" "<" ">" "&&" "||"))
 
 ["{" "}"] @punctuation.bracket
 ";" @punctuation.delimiter
